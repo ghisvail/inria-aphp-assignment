@@ -39,7 +39,10 @@ de qualité de données (données incohérentes, données manquantes etc.)
 - Ecrire une fonction Python `detect_duplicates` qui prend
 en parametère le dataframe `df_patient` et qui renvoit
 un nouveau dataframe après suppression des doublons. Vous
-estimerez le pourcentage de données dupliquées.
+estimerez le pourcentage de données dupliquées. Attention,
+les données dupliquées ne sont pas identiques. Il faut imaginer
+des problèmes de saisies de données (typos, information manquante
+etc.)
 
 - Ecrire une ou plusieurs fonctions de test (eg utilisant https://docs.pytest.org/en/stable/)
 afin de tester la qualité de votre function.
@@ -66,5 +69,5 @@ détaille le contenu des différents fichiers et les librairies
 à installer pour utiliser votre code.
 
 - Il est préférable que le code Python soit écrit en Anglais.
-Les commentaires et les analyses dans les notebooks
+Les commentaires et l'analyse des résultats dans les notebooks
 devront être en Français.
