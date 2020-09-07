@@ -1,0 +1,8 @@
+name: inria-aphp-assignment
+channels:
+  - defaults
+dependencies:
+  - notebook=6.1.*
+  - pandas=1.1.*
+  - python=3.8.*
+  - sqlalchemy=1.3.*
