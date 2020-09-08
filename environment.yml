@@ -1,8 +1,13 @@
 name: inria-aphp-assignment
 channels:
   - defaults
+  - conda-forge
 dependencies:
+  - geopy=2.0.*
   - notebook=6.1.*
   - pandas=1.1.*
+  - pip
+  - pip:
+    - jellyfish>=0.8.2
   - python=3.8.*
   - sqlalchemy=1.3.*
