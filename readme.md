@@ -1,73 +1,49 @@
 # Exercice d'évaluation pour le poste Inria / AP-HP
 
-L'objectif de ce travail est d'évaluer vos compétences sur une
-mise en situation proche des problématiques de la collaboration
-entre Inria et AP-HP.
+## Prérequis
 
-Vous avez accés à un fichier 'data.db' qui est une base de données
-sqlite contenant 2 tables. Une table de patients et une table
-de tests PCR (test utlisé pour le diagnostic du Covid19).
+Une installation fonctionnelle du gestionnaire d'environnement `conda`.
 
-Voici un bout de code Python servant à lire les tables avec
-Pandas.
+Je recommande la distribution [miniconda](https://docs.conda.io/en/latest/miniconda.html).
 
-```python
+## Démarrage
 
-import pandas as pd
-from sqlalchemy import create_engine
+Provisionnez l'environnment avec `conda`.
 
-engine = create_engine('sqlite:///data.db', echo=False)
-con = engine.connect()
-df_patient = pd.read_sql('select * from patient', con=con)
-df_pcr = pd.read_sql('select * from test', con=con)
-con.close()
+```sh
+conda env create
 ```
 
-L'objectif général de cette mise en situation est de comprendre les
-problèmes de qualités de données. Vous devrez mettre en évidence les
-doublons dans la base patients et estimez le nombre de patients positifs
-au Covid19 (par tranche d'age, par localisation géographique etc.).
+Activez l'environnement dans votre shell.
 
-Les données sont synthétiques et correspondent à la géographie
-de l'Australie.
+```sh
+conda activate inria-aphp-assignment
+```
 
-## Questions
+---
 
-- Ecrire un notebook jupyter qui met en évidence les problèmes
-de qualité de données (données incohérentes, données manquantes etc.)
+:warning: Pour fonctionner, `conda activate` peut nécessiter une étape d'initialisation avec `conda init`.
 
-- Ecrire une fonction Python `detect_duplicates` qui prend
-en parametère le dataframe `df_patient` et qui renvoit
-un nouveau dataframe après suppression des doublons. Vous
-estimerez le pourcentage de données dupliquées. Attention,
-les données dupliquées ne sont pas identiques. Il faut imaginer
-des problèmes de saisies de données (typos, information manquante
-etc.)
+---
 
-- Ecrire une ou plusieurs fonctions de test (eg utilisant https://docs.pytest.org/en/stable/)
-afin de tester la qualité de votre function.
+Lancez Jupyter et accedez à l'interface web.
 
-- Faire un notebook jupyter d'analyse exploratoire de données
-(EDA exploratory data analysis). Il est demandé de représenter
-visuellement (graphiques, histogrammes, etc.). Ce notebook
-devra utiliser le dataframe `df_patient` après la déduplication
-utilisant la fonction `detect_duplicates`. Vous ferez
-la jointure entre les dataframes `df_patient` et `df_pcr`
-afin de répresenter et discuter la prévalence de la maladie
-dans la population.
+```sh
+jupyter notebook
+```
 
-## Instructions
+Ouvrir l'un des fichiers `.ipynb` ci-dessous.
 
-- Vous avez le droit d'utiliser toutes les librairies présentes
-dans l'écosystème Python/PyData. Ces librairies sont typiquement
-disponibles sur PyPi ou conda forge.
+## Contenu
 
-- Le rendu de votre travail consistera en un repository sur GitHub.
+Ce répertoire contient les fichiers notebook suivant :
 
-- Le repository GitHub devra contenir un fichier readme.md qui
-détaille le contenu des différents fichiers et les librairies
-à installer pour utiliser votre code.
+- `qa.ipynb` : le notebook contenant l'analyse de qualité du dataset
+- `eda.ipynb` : le notebook contenant l'analyse exploratoire du dataset nettoyé
 
-- Il est préférable que le code Python soit écrit en Anglais.
-Les commentaires et l'analyse des résultats dans les notebooks
-devront être en Français.
+Ces fichiers utilisent les ressources suivantes :
+
+- `data.db` : la base de données contenant le jeu de données brut
+- `entity_resolution.py` : un module utilitaire contenant le code de nettoyage et déduplication du dataset
+- `getting_started.py` : un module utilitaire contenant le code partagé de chargement du dataset
+- `state_postcode.csv` : le [référentiel des états et codes postaux Australiens](https://en.wikipedia.org/wiki/Postcodes_in_Australia) associés
