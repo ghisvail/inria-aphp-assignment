@@ -39,8 +39,11 @@ def get_state_postcode_validator():
     return lambda s, p: postcode_ranges_per_state[s].contains(int(p)).any()
 
 
-def remove_patient_id_duplicates(df: pd.DataFrame) -> pd.DataFrame:
-    return df.drop_duplicates(subset={"patient_id"}).set_index("patient_id")
+def drop_duplicated_patient_id(df: pd.DataFrame) -> pd.DataFrame:
+    return (
+        df.drop_duplicates(subset={"patient_id"}, keep=False)
+        .set_index(keys="patient_id")
+    )
 
 
 def sanitize_street_number(df: pd.DataFrame) -> pd.DataFrame:
@@ -152,13 +155,14 @@ def infer_state_from_postcode(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def drop_duplicates(df: pd.DataFrame) -> pd.DataFrame:
-    return df.drop_duplicates(keep=False)
+def dedup_patient(df: pd.DataFrame) -> pd.DataFrame:
+    df["dedup_id"] = pd.Series([], dtype="Int64")
+    return df
 
 
 def detect_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     return (
-        df.pipe(remove_patient_id_duplicates)
+        df.pipe(drop_duplicated_patient_id)
           .pipe(sanitize_date_of_birth)
           .pipe(sanitize_street_number)
           .pipe(sanitize_suburb)
@@ -166,5 +170,5 @@ def detect_duplicates(df: pd.DataFrame) -> pd.DataFrame:
           .pipe(sanitize_state)
           .pipe(clean_state_with_postcode)
           .pipe(infer_state_from_postcode)
-          .pipe(drop_duplicates)
+          #.pipe(dedup_patient)
     )
