@@ -1,6 +1,7 @@
 name: inria-aphp-assignment
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - geopandas=0.8.*
   - geopy=2.0.*
