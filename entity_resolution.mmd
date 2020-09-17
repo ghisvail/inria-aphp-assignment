@@ -1,0 +1,13 @@
+graph TD;
+    A[Lecture du dataset]-->B[Conversion en types spécifiques];    
+    B-->C[Remplacement de valeurs aberrantes];
+    C-->D[Correction des inversions quartier - code postal];
+    D-->E[Correction des codes d'état];
+    E-->F[Complétion des codes postaux manquants];
+    F-->G[Complétion des états manquants];
+    G-->H[Rapprochement flou par nom + prénom + numéro de téléphone];
+    H-->I[Rapprochement flou par nom ou prénom + date de naisance + numéro de téléphone];
+    I-->J[Rapprochement flou par nom ou prénom + age + numéro de téléphone];
+    J-->K[Rapprochement flou par adresse complète + date de naissance + numéro de téléphone];
+    K-->L[Rapprochement flou par adresse complète + date de naissance];
+    L-->M[Rapprochement flou par nom + prénom + date de naissance];
