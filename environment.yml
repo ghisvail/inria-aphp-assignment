@@ -3,8 +3,6 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - geopandas=0.8.*
-  - geopy=2.0.*
   - ipyleaflet=0.13.*
   - nbstripout=0.3.*
   - notebook=6.1.*
