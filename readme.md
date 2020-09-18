@@ -48,3 +48,4 @@ Ces fichiers utilisent les ressources suivantes :
 - `getting_started.py` : un module utilitaire contenant le code partagé de chargement du dataset
 - `state_postcode.csv` : le référentiel des [états et codes postaux Australiens](https://en.wikipedia.org/wiki/Postcodes_in_Australia)
 - `aus_state.geojson` : une [carte de l'Australie](https://exploratory.io/map) au format GeoJSON distribuée sous licence MIT
+- `australian_postcodes.csv` : un référentiel des [codes postaux avec leurs coordonnées géodésiques](https://www.matthewproctor.com/australian_postcodes)
