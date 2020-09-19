@@ -13,3 +13,4 @@ dependencies:
   - sqlalchemy=1.3.*
   - pip:
     - textdistance>=4.2
+    - recordlinkage>=0.14
