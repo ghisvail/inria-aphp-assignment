@@ -87,7 +87,7 @@ def sanitize_postcode(df: pd.DataFrame) -> pd.DataFrame:
 
 def sanitize_state(df: pd.DataFrame) -> pd.DataFrame:
     from itertools import product
-    from textdistance import damerau_levenshtein
+    from jellyfish import damerau_levenshtein_distance
 
     # List of valid codes for state
     states = STATES
@@ -97,7 +97,7 @@ def sanitize_state(df: pd.DataFrame) -> pd.DataFrame:
 
     # Compute string similarity between all combinations of code and state
     df_distance = pd.Series(
-        data=[damerau_levenshtein(c, s) for c, s in product(codes, states)],
+        data=[damerau_levenshtein_distance(c, s) for c, s in product(codes, states)],
         index=pd.MultiIndex.from_product([codes, states], names=["code", "state"]),
         name="distance",
     )
