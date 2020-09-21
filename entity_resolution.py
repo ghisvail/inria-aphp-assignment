@@ -1,4 +1,5 @@
 import pandas as pd
+import recordlinkage as rl
 from functools import lru_cache
 
 
@@ -155,9 +156,93 @@ def infer_state_from_postcode(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def link_on_surname(df: pd.DataFrame) -> pd.DataFrame:
+    pairs = rl.index.Block("surname").index(df)
+
+    comparator = rl.Compare(n_jobs=-1)
+    comparator.string("given_name", "given_name", label="given_name", method="jarowinkler", threshold=.85)
+    comparator.exact("street_number", "street_number", label="street_number")
+    comparator.string("address_1", "address_1", label="address_1", method="jarowinkler", threshold=.85)
+    comparator.string("address_2", "address_2", label="address_2", method="jarowinkler", threshold=.85)
+    comparator.string("address_1", "address_2", label="address_1_2", method="jarowinkler", threshold=.85)
+    comparator.string("address_2", "address_1", label="address_2_1", method="jarowinkler", threshold=.85)
+    comparator.string("suburb", "suburb", label="suburb", method="jarowinkler", threshold=.85)
+    comparator.exact("postcode", "postcode", label="postcode")
+    comparator.exact("age", "age", label="age")
+    comparator.exact("phone_number", "phone_number", label="phone_number")
+
+    features = comparator.compute(pairs, df)
+
+    return features[features.sum(axis=1) >= 4].index
+
+
+def link_on_postcode(df: pd.DataFrame) -> pd.DataFrame:
+    pairs = rl.index.Block("postcode").index(df)
+
+    comparator = rl.Compare(n_jobs=-1)
+    comparator.string("given_name", "given_name", label="given_name", method="jarowinkler", threshold=.85)
+    comparator.string("surname", "surname", label="surname", method="jarowinkler", threshold=.85)
+    comparator.string("given_name", "surname", label="given_name_surname", method="jarowinkler", threshold=.85)
+    comparator.string("surname", "given_name", label="surname_given_name", method="jarowinkler", threshold=.85)
+    comparator.exact("street_number", "street_number", label="street_number")
+    comparator.string("address_1", "address_1", label="address_1", method="jarowinkler", threshold=.85)
+    comparator.string("address_2", "address_2", label="address_2", method="jarowinkler", threshold=.85)
+    comparator.string("address_1", "address_2", label="address_1_2", method="jarowinkler", threshold=.85)
+    comparator.string("address_2", "address_1", label="address_2_1", method="jarowinkler", threshold=.85)
+    comparator.string("suburb", "suburb", label="suburb", method="jarowinkler", threshold=.85)
+    comparator.exact("age", "age", label="age")
+    comparator.exact("phone_number", "phone_number", label="phone_number")
+
+    features = comparator.compute(pairs, df)
+
+    return features[features.sum(axis=1) >= 4].index
+
+
+def link_on_phone_number(df: pd.DataFrame) -> pd.DataFrame:
+    pairs = rl.index.Block("phone_number").index(df)
+
+    comparator = rl.Compare(n_jobs=-1)
+    comparator.string("given_name", "given_name", label="given_name", method="jarowinkler", threshold=.85)
+    comparator.string("surname", "surname", label="surname", method="jarowinkler", threshold=.85)
+    comparator.string("given_name", "surname", label="given_name_surname", method="jarowinkler", threshold=.85)
+    comparator.string("surname", "given_name", label="surname_given_name", method="jarowinkler", threshold=.85)
+    comparator.exact("street_number", "street_number", label="street_number")
+    comparator.string("address_1", "address_1", label="address_1", method="jarowinkler", threshold=.85)
+    comparator.string("address_2", "address_2", label="address_2", method="jarowinkler", threshold=.85)
+    comparator.string("address_1", "address_2", label="address_1_2", method="jarowinkler", threshold=.85)
+    comparator.string("address_2", "address_1", label="address_2_1", method="jarowinkler", threshold=.85)
+    comparator.string("suburb", "suburb", label="suburb", method="jarowinkler", threshold=.85)
+    comparator.exact("postcode", "postcode", label="postcode")
+    comparator.exact("age", "age", label="age")
+
+    features = comparator.compute(pairs, df)
+
+    return features[features.sum(axis=1) >= 4].index
+
+
 def dedup_patient(df: pd.DataFrame) -> pd.DataFrame:
-    df["dedup_id"] = pd.Series([], dtype="Int64")
-    return df
+    idx_dedup = (
+        link_on_surname(df)
+        .union(link_on_postcode(df))
+        .union(link_on_phone_number(df))
+    )
+
+    dedup_id = (
+        df.index.to_frame()
+        .rename(columns={"patient_id": "dedup_id"})
+        .replace(
+            rl.network.OneToManyLinking()
+            .compute(idx_dedup)
+            .to_frame(index=True)
+            .rename(columns={
+                "patient_id_1": "patient_id",
+                "patient_id_2": "dedup_id",
+            })
+            .set_index("patient_id", verify_integrity=True)
+        )
+    )
+
+    return df.assign(dedup_id=dedup_id)
 
 
 def detect_duplicates(df: pd.DataFrame) -> pd.DataFrame:
@@ -170,5 +255,5 @@ def detect_duplicates(df: pd.DataFrame) -> pd.DataFrame:
           .pipe(sanitize_state)
           .pipe(clean_state_with_postcode)
           .pipe(infer_state_from_postcode)
-          #.pipe(dedup_patient)
+          .pipe(dedup_patient)
     )
