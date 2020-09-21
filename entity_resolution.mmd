@@ -1,13 +1,18 @@
-graph TD;
-    A[Lecture du dataset]-->B[Conversion en types spécifiques];    
-    B-->C[Remplacement de valeurs aberrantes];
-    C-->D[Correction des inversions quartier - code postal];
-    D-->E[Correction des codes d'état];
-    E-->F[Complétion des codes postaux manquants];
-    F-->G[Complétion des états manquants];
-    G-->H[Rapprochement flou par nom + prénom + numéro de téléphone];
-    H-->I[Rapprochement flou par nom ou prénom + date de naisance + numéro de téléphone];
-    I-->J[Rapprochement flou par nom ou prénom + age + numéro de téléphone];
-    J-->K[Rapprochement flou par adresse complète + date de naissance + numéro de téléphone];
-    K-->L[Rapprochement flou par adresse complète + date de naissance];
-    L-->M[Rapprochement flou par nom + prénom + date de naissance];
+graph TB;
+    subgraph Nettoyage des données
+    A[(data.db)] --> B[Chargement du jeu de données];
+    B --> C[Suppression des identifiants doublonnés];
+    C --> D[Nettoyage des dates de naissance];
+    D --> E[Nettoyage du numéro de rue];
+    E --> F[Correction des inversions quartier - code postal];
+    F --> G[Nettoyage des codes postaux];
+    G --> H[Nettoyage des codes d'état];
+    H --> I[Suppression des états incohérents];
+    I --> J[Imputation des états manquants];
+    end
+    subgraph Rapprochement des données
+    J --> K[Rapprochement par nom de famille];
+    K --> L[Rapprochement par code postal];
+    L --> M[Rapprochement par numéro de téléphone];
+    M --> N[Ajout de l'identifiant de dédoublonnage];
+    end

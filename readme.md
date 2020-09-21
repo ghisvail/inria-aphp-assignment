@@ -39,7 +39,7 @@ Ouvrir l'un des fichiers `.ipynb` ci-dessous.
 Ce répertoire contient les fichiers notebook suivant :
 
 - `qa.ipynb` : le notebook contenant l'analyse de qualité du dataset
-- `eda.ipynb` : le notebook contenant l'analyse exploratoire du dataset nettoyé
+- `eda.ipynb` : le notebook contenant l'analyse exploratoire du dataset
 
 Ces fichiers utilisent les ressources suivantes :
 
@@ -49,3 +49,9 @@ Ces fichiers utilisent les ressources suivantes :
 - `state_postcode.csv` : le référentiel des [états et codes postaux Australiens](https://en.wikipedia.org/wiki/Postcodes_in_Australia)
 - `aus_state.geojson` : une [carte de l'Australie](https://exploratory.io/map) au format GeoJSON distribuée sous licence MIT
 - `australian_postcodes.csv` : un référentiel des [codes postaux avec leurs coordonnées géodésiques](https://www.matthewproctor.com/australian_postcodes)
+
+## Traitement des données
+
+Le graphique ci-dessous illuste les traitements séquentiels effectués sur les données par la fonction `detect_duplicates` utilisée dans l'analyse exploratoire.
+
+![](entity_resolution.svg)
