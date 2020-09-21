@@ -13,7 +13,7 @@ def read_state_postcode():
     """
     return (
         pd.read_csv("state_postcode.csv").convert_dtypes()
-        .astype({"postcode_min_range": int, "postcode_max_range": int}
+        .astype({"postcode_min_range": int, "postcode_max_range": int})
     )
 
 
