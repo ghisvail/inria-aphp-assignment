@@ -40,7 +40,7 @@ def get_state_postcode_validator():
     return lambda s, p: postcode_ranges_per_state[s].contains(int(p)).any()
 
 
-def drop_duplicated_patient_id(df: pd.DataFrame) -> pd.DataFrame:
+def drop_duplicate_patient_id(df: pd.DataFrame) -> pd.DataFrame:
     return (
         df.drop_duplicates(subset={"patient_id"}, keep=False)
         .set_index(keys="patient_id")
@@ -220,7 +220,7 @@ def link_on_phone_number(df: pd.DataFrame) -> pd.DataFrame:
     return features[features.sum(axis=1) >= 4].index
 
 
-def dedup_patient(df: pd.DataFrame) -> pd.DataFrame:
+def compute_dedup_id(df: pd.DataFrame) -> pd.DataFrame:
     idx_dedup = (
         link_on_surname(df)
         .union(link_on_postcode(df))
@@ -247,7 +247,7 @@ def dedup_patient(df: pd.DataFrame) -> pd.DataFrame:
 
 def detect_duplicates(df: pd.DataFrame) -> pd.DataFrame:
     return (
-        df.pipe(drop_duplicated_patient_id)
+        df.pipe(drop_duplicate_patient_id)
           .pipe(sanitize_date_of_birth)
           .pipe(sanitize_street_number)
           .pipe(sanitize_suburb)
@@ -255,5 +255,5 @@ def detect_duplicates(df: pd.DataFrame) -> pd.DataFrame:
           .pipe(sanitize_state)
           .pipe(clean_state_with_postcode)
           .pipe(infer_state_from_postcode)
-          .pipe(dedup_patient)
+          .pipe(compute_dedup_id)
     )
