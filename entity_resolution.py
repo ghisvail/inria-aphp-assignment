@@ -8,11 +8,19 @@ STATES = {'act', 'nsw', 'nt', 'qld', 'sa', 'tas', 'vic', 'wa'}
 
 @lru_cache(maxsize=1)
 def read_state_postcode():
-    return pd.read_csv("state_postcode.csv").convert_dtypes().astype({
-        "postcode_min_range": int, "postcode_max_range": int})
+    """
+    Read postcode ranges per state and cast to appropriate types.
+    """
+    return (
+        pd.read_csv("state_postcode.csv").convert_dtypes()
+        .astype({"postcode_min_range": int, "postcode_max_range": int}
+    )
 
 
-def get_postcode_validator():
+def get_national_postcode_validator():
+    """
+    Return a function which validates a postcode nationally.
+    """
     state_postcode = read_state_postcode()
 
     postcode_ranges = pd.arrays.IntervalArray.from_arrays(
@@ -25,6 +33,9 @@ def get_postcode_validator():
 
 
 def get_state_postcode_validator():
+    """
+    Return a function which validates a postcode for a specific state.
+    """
     state_postcode = read_state_postcode()
 
     postcode_ranges_per_state = {
@@ -41,6 +52,9 @@ def get_state_postcode_validator():
 
 
 def drop_duplicate_patient_id(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Drop patients with a duplicate patient_id and set patient_id as index.
+    """
     return (
         df.drop_duplicates(subset={"patient_id"}, keep=False)
         .set_index(keys="patient_id")
@@ -48,10 +62,16 @@ def drop_duplicate_patient_id(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def sanitize_street_number(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Sanitize street numbers in the dataset.
+    """
     return df.replace({"street_number": {0: pd.NA}})
 
 
 def sanitize_date_of_birth(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Sanitize dates of birth in the dataset.
+    """
     return df.assign(
         date_of_birth=pd.to_datetime(
             df.date_of_birth,
@@ -62,6 +82,9 @@ def sanitize_date_of_birth(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def sanitize_suburb(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Sanitize suburbs in the dataset.
+    """
     # Detect where swapping of suburb with postocode occurred
     df_swapped = df.loc[df.suburb.str.contains(r"\d"), ["suburb", "postcode"]]
 
@@ -77,7 +100,10 @@ def sanitize_suburb(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def sanitize_postcode(df: pd.DataFrame) -> pd.DataFrame:
-    validate_postcode = get_postcode_validator()
+    """
+    Sanitize postcodes in the dataset.
+    """
+    validate_postcode = get_national_postcode_validator()
 
     postcodes = df.postcode.dropna().unique()
 
@@ -87,6 +113,9 @@ def sanitize_postcode(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def sanitize_state(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Sanitize states in the dataset.
+    """
     from itertools import product
     from jellyfish import damerau_levenshtein_distance
 
@@ -117,6 +146,9 @@ def sanitize_state(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def clean_state_with_postcode(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Clear incoherent states from postcode.
+    """
     validate = get_state_postcode_validator()
 
     df_postcode_state = df[["postcode", "state"]].dropna()
@@ -132,6 +164,9 @@ def clean_state_with_postcode(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def infer_state_from_postcode(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Infer state from postcode where state is undefined.
+    """
     from itertools import product
 
     validate_state_postcode = get_state_postcode_validator()
@@ -157,6 +192,9 @@ def infer_state_from_postcode(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def link_on_surname(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Link patients with similar attributes, blocking on surname.
+    """
     pairs = rl.index.Block("surname").index(df)
 
     comparator = rl.Compare(n_jobs=-1)
@@ -177,6 +215,9 @@ def link_on_surname(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def link_on_postcode(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Link patients with similar attributes, blocking on postcode.
+    """
     pairs = rl.index.Block("postcode").index(df)
 
     comparator = rl.Compare(n_jobs=-1)
@@ -199,6 +240,9 @@ def link_on_postcode(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def link_on_phone_number(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Link patients with similar attributes, blocking on phone number.
+    """
     pairs = rl.index.Block("phone_number").index(df)
 
     comparator = rl.Compare(n_jobs=-1)
@@ -221,6 +265,9 @@ def link_on_phone_number(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def compute_dedup_id(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute deduplication matrix from dataset.
+    """
     idx_dedup = (
         link_on_surname(df)
         .union(link_on_postcode(df))
@@ -246,6 +293,9 @@ def compute_dedup_id(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def detect_duplicates(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Detect duplicates in dataset.
+    """
     return (
         df.pipe(drop_duplicate_patient_id)
           .pipe(sanitize_date_of_birth)
