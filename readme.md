@@ -43,7 +43,7 @@ Ce répertoire contient les fichiers notebook suivants :
 
 Ces fichiers utilisent les ressources suivantes :
 
-- `data.db` : la base de données contenant le jeu de données brut
+- `data.db` : la base de données contenant le jeu de données brutes
 - `entity_resolution.py` : un module utilitaire contenant le code de nettoyage et déduplication du dataset
 - `getting_started.py` : un module utilitaire contenant le code partagé de chargement du dataset
 - `state_postcode.csv` : le référentiel des [états et codes postaux australiens](https://en.wikipedia.org/wiki/Postcodes_in_Australia)
